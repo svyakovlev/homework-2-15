@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class IntegerListImpl implements IntegerList {
 
-    private final Integer[] storage;
+    private Integer[] storage;
     private int size;
 
     public IntegerListImpl() {
@@ -21,7 +21,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer add(Integer item) {
-        validateSize();
+        growIfNeeded();
         validateItem(item);
         storage[size++] = item;
         return item;
@@ -29,7 +29,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer add(int index, Integer item) {
-        validateSize();
+        growIfNeeded();
         validateItem(item);
         validateIndex(index);
         if (index == size) {
@@ -132,9 +132,9 @@ public class IntegerListImpl implements IntegerList {
         }
     }
 
-    private void validateSize() {
+    private void growIfNeeded() {
         if (size == storage.length) {
-            throw new StorageIsFullException();
+            grow();
         }
     }
 
@@ -184,6 +184,33 @@ public class IntegerListImpl implements IntegerList {
         }
     }
 
+    public void sort(Integer[] arr) {
+        quickSort(arr, 0, arr.length - 1);
+    }
+
+    public void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
+        }
+    }
+
+    private int partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                swapElements(arr, i, j);
+            }
+        }
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+
     private boolean binarySearch(Integer[] arr, Integer item) {
         int min = 0;
         int max = arr.length - 1;
@@ -202,5 +229,9 @@ public class IntegerListImpl implements IntegerList {
             }
         }
         return false;
+    }
+
+    private void grow() {
+        storage = Arrays.copyOf(storage, size + size / 2);
     }
 }
